@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://dd0m3otg6f6a0"]
+
+[ext_resource type="TileSet" uid="uid://c88xseoc7gl7o" path="res://brick_tileset.tres" id="1_0e48y"]
+[ext_resource type="Script" uid="uid://cfcc0e554jdly" path="res://node_2d.gd" id="1_wtcfe"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="BrickWFC" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("1_0e48y")
+collision_enabled = false
+navigation_enabled = false
+script = ExtResource("1_wtcfe")
+
+[node name="TickTimer" type="Timer" parent="BrickWFC"]
+wait_time = 0.1
+autostart = true
+
+[node name="RestartTimer" type="Timer" parent="BrickWFC"]
+wait_time = 5.0
+one_shot = true
+
+[node name="StatsTimer" type="Timer" parent="BrickWFC"]
+autostart = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(202, 148)
+zoom = Vector2(2, 2)
