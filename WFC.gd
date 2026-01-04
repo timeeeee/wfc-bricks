@@ -150,17 +150,19 @@ func choose_state(coords: Vector2i):
 	return available_states[index]
 	
 
-func propagate_rules(coords: Vector2i, collapsed_state: TileDirection):
+func propagate_rules(coords: Vector2i, collapsed_state: TileDirection, recurse=true):
 	# wherever this faces, that square has to face back
 	var other_cell = coords + DIRECTION_OFFSET[collapsed_state]
 	var other_direction = (collapsed_state + 2) % 4 as TileDirection
-	if states[other_cell.y][other_cell.x].get(other_direction, 0) <= 0:
-		print("removed last possible state while propagating rules")
-		fail()
-		return false
 
-	states[other_cell.y][other_cell.x] = {other_direction: 1.0}
-	get_entropy_at(other_cell)
+	if recurse:
+		if states[other_cell.y][other_cell.x].get(other_direction, 0) <= 0:
+			print("removed last possible state while propagating rules")
+			fail()
+			return false
+
+		states[other_cell.y][other_cell.x] = {other_direction: 1.0}
+		get_entropy_at(other_cell)
 	
 	# also tiles in the other three directions can't face this tile
 	for direction_index in range(4):
@@ -182,6 +184,9 @@ func propagate_rules(coords: Vector2i, collapsed_state: TileDirection):
 		var back_direction = (direction + 2) % 4 as TileDirection
 		states[outside_cell.y][outside_cell.x].erase(back_direction)
 		get_entropy_at(outside_cell)
+		
+	if recurse:
+		propagate_rules(other_cell, other_direction, false)
 		
 		
 func pop_random_with_least_entropy(cells: Array[Vector2i]):
