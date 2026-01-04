@@ -182,6 +182,30 @@ func propagate_rules(coords: Vector2i, collapsed_state: TileDirection):
 		var back_direction = (direction + 2) % 4 as TileDirection
 		states[outside_cell.y][outside_cell.x].erase(back_direction)
 		get_entropy_at(outside_cell)
+		
+		
+func pop_random_with_least_entropy(cells: Array[Vector2i]):
+	var selected_index = 0
+	var least_entropy = entropies[cells[0].y][cells[0].x]
+	var count_with_least_entropy = 1
+	for index in range(1, cells.size()):
+		var cell = cells[index]
+		var entropy = entropies[cell.y][cell.x]
+		if entropy > least_entropy:
+			# at this point we're only looking at spots with less entropy than this one
+			continue
+		elif entropy == least_entropy:
+			# should we switch to randomly selecting this cell?
+			count_with_least_entropy += 1
+			if randf() < 1.0 / count_with_least_entropy:
+				selected_index = index
+		else:
+			# this is the first cell we've seen with entropy this low
+			selected_index = index
+			least_entropy = entropy
+			count_with_least_entropy = 1
+	
+	return cells.pop_at(selected_index)
 
 
 # return [Vector2i(col, row), state] OR null if impossible
@@ -190,9 +214,10 @@ func collapse_one():
 	if !running:
 		return null
 
-	uncollapsed_cells.shuffle()
-	uncollapsed_cells.sort_custom(entropy_lt)
-	var cell = uncollapsed_cells.pop_front()
+	# uncollapsed_cells.shuffle()
+	# uncollapsed_cells.sort_custom(entropy_lt)
+	# var cell = uncollapsed_cells.pop_front()
+	var cell = pop_random_with_least_entropy(uncollapsed_cells)
 	var row = cell.y
 	var col = cell.x
 	var entropy = states[row][col].duplicate()
